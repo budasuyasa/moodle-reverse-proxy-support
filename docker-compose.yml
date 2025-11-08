@@ -1,0 +1,40 @@
+services:
+  moodle:
+    image: hookigroup/moodle:501
+    container_name: moodle
+    restart: always
+    depends_on:
+      - mariadb
+    env_file:
+      - .env
+    ports:
+      - "8080:80"
+    volumes:
+      - moodle_data:/var/www/moodledata
+    networks:
+      - moodle_net
+
+  mariadb:
+    image: mariadb:10.11
+    container_name: moodle-db
+    restart: always
+    env_file:
+      - .env
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MOODLE_DATABASE_PASSWORD}
+      MYSQL_DATABASE: ${MOODLE_DATABASE_NAME}
+      MYSQL_USER: ${MOODLE_DATABASE_USER}
+      MYSQL_PASSWORD: ${MOODLE_DATABASE_PASSWORD}
+    command: --max_allowed_packet=256M --innodb_buffer_pool_size=512M
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    networks:
+      - moodle_net
+
+networks:
+  moodle_net:
+    driver: bridge
+
+volumes:
+  moodle_data:
+  mariadb_data:

@@ -1,0 +1,13 @@
+traefik.enable=true
+traefik.docker.network=coolify
+traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https
+traefik.http.middlewares.gzip.compress=true
+traefik.http.routers.moodle-http.entryPoints=http
+traefik.http.routers.moodle-http.rule=Host(`bia-lms.hookigroup.com`)
+traefik.http.routers.moodle-http.middlewares=redirect-to-https
+traefik.http.routers.moodle-https.entryPoints=https
+traefik.http.routers.moodle-https.rule=Host(`bia-lms.hookigroup.com`)
+traefik.http.routers.moodle-https.middlewares=gzip
+traefik.http.routers.moodle-https.tls.certresolver=letsencrypt
+traefik.http.services.moodle.loadbalancer.server.port=80
+
