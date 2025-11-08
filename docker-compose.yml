@@ -1,6 +1,8 @@
 services:
   moodle:
-    image: hookigroup/moodle:501
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: moodle
     restart: always
     depends_on:
