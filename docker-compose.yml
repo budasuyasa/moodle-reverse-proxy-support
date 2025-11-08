@@ -11,8 +11,8 @@ services:
       - .env
     ports:
       - "8080:80"
-    volumes:
-      - moodle_data:/var/www/moodledata
+    #volumes:
+    #  - moodle_data:/var/www/moodledata
     networks:
       - moodle_net
 
@@ -38,5 +38,5 @@ networks:
     driver: bridge
 
 volumes:
-  moodle_data:
+  #moodle_data:
   mariadb_data:
