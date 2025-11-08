@@ -9,11 +9,11 @@ LABEL maintainer="hookigroup.com" \
 
 # --- Install dependencies ---
 RUN apt-get update && apt-get install -y \
-  git unzip ghostscript cron supervisor \
+  git unzip ghostscript cron supervisor vim \
   libpng-dev libjpeg-dev libfreetype6-dev libicu-dev libxml2-dev libzip-dev libpq-dev \
   && docker-php-ext-configure gd --with-freetype --with-jpeg \
   && docker-php-ext-install gd intl xml zip mysqli opcache \
-  && a2enmod rewrite headers env vim \
+  && a2enmod rewrite headers env \
   && rm -rf /var/lib/apt/lists/*
 
 # --- Working directory ---
