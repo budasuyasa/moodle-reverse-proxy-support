@@ -17,8 +17,8 @@
 ### 1. Clone Repository
 
 ```bash
-git clone <repository-url>
-cd moodle-reverse-proxy
+git clone https://github.com/budasuyasa/moodle-reveerse-proxy-support
+cd moodle-reverse-proxy-support
 ```
 
 ### 2. Setup Environment Variables
