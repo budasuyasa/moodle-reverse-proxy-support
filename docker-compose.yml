@@ -13,17 +13,6 @@ services:
       - moodle_data:/var/www/moodledata
     networks:
       - moodle_net
-      # - coolify
-    labels:
-      traefik.enable: "true"
-      traefik.http.routers.moodle.rule: "Host(`${MOODLE_HOST}`)"
-      traefik.http.routers.moodle.entrypoints: "https"
-      traefik.http.routers.moodle.tls.certresolver: "letsencrypt"
-      traefik.http.middlewares.moodle-headers.headers.customrequestheaders.X-Forwarded-Proto: "https"
-      traefik.http.middlewares.moodle-headers.headers.customrequestheaders.X-Forwarded-Port: "443"
-      traefik.http.middlewares.moodle-headers.headers.customrequestheaders.X-Forwarded-Host: "${MOODLE_HOST}"
-      traefik.http.routers.moodle.middlewares: "moodle-headers"
-      traefik.http.services.moodle.loadbalancer.server.port: "80"
 
   mariadb:
     image: mariadb:10.11
@@ -49,5 +38,3 @@ volumes:
 networks:
   moodle_net:
     driver: bridge
-  #coolify:
-  #  external: true
