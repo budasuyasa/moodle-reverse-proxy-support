@@ -1,41 +1,40 @@
 FROM php:8.3-apache
 
-# --- Install dependencies ---
+# Install dependencies
 RUN apt-get update && apt-get install -y \
-  git unzip libpng-dev libjpeg-dev libfreetype6-dev libxml2-dev libzip-dev libicu-dev ghostscript \
-  libonig-dev libcurl4-openssl-dev libxslt1-dev libmagickwand-dev supervisor netcat-openbsd \
-  && docker-php-ext-configure gd --with-freetype --with-jpeg \
-  && docker-php-ext-install gd mysqli zip intl opcache soap xsl xml mbstring curl exif pdo pdo_mysql \
-  && pecl install imagick \
-  && docker-php-ext-enable imagick \
-  && rm -rf /var/lib/apt/lists/*
+  git unzip cron curl ghostscript libfreetype6-dev libjpeg62-turbo-dev libpng-dev \
+  libxml2-dev libicu-dev libzip-dev libldap2-dev libxslt-dev netcat-traditional \
+  supervisor vim && \
+  rm -rf /var/lib/apt/lists/*
 
-# --- Enable Apache rewrite and set DocumentRoot to /public ---
-RUN a2enmod rewrite \
-  && sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/sites-available/000-default.conf \
-  && sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/apache2.conf
+# Enable Apache mods
+RUN a2enmod rewrite headers ssl
 
-# --- PHP configs ---
-RUN echo "upload_max_filesize=128M" > /usr/local/etc/php/conf.d/uploads.ini \
-  && echo "post_max_size=128M" >> /usr/local/etc/php/conf.d/uploads.ini \
-  && echo "max_input_vars=5000" >> /usr/local/etc/php/conf.d/uploads.ini \
-  && echo "memory_limit=512M" >> /usr/local/etc/php/conf.d/uploads.ini
+# Configure PHP extensions
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg && \
+  docker-php-ext-install -j$(nproc) \
+  gd intl mysqli opcache soap xmlrpc xml zip ldap xsl
 
-# --- Environment defaults ---
-ENV MOODLE_VERSION=MOODLE_501_STABLE \
-  MOODLE_DATA=/var/www/moodledata
+# PHP settings
+RUN echo "upload_max_filesize = 128M" > /usr/local/etc/php/conf.d/uploads.ini && \
+  echo "post_max_size = 128M" >> /usr/local/etc/php/conf.d/uploads.ini && \
+  echo "max_input_vars = 5000" >> /usr/local/etc/php/conf.d/uploads.ini && \
+  echo "memory_limit = 512M" >> /usr/local/etc/php/conf.d/uploads.ini
 
-# --- Download Moodle ---
 WORKDIR /var/www/html
-RUN git clone --branch ${MOODLE_VERSION} --depth 1 https://github.com/moodle/moodle.git . \
-  && mkdir -p /var/www/moodledata \
-  && chown -R www-data:www-data /var/www/html /var/www/moodledata
 
-# --- Copy entrypoint & supervisor config ---
-COPY entrypoint.sh /entrypoint.sh
+# Clone Moodle core (latest stable)
+ARG MOODLE_VERSION=MOODLE_501_STABLE
+RUN git clone -b ${MOODLE_VERSION} --depth=1 https://github.com/moodle/moodle.git /var/www/html
+
+# Create data directory
+RUN mkdir -p /var/www/moodledata && chown -R www-data:www-data /var/www && chmod -R 775 /var/www
+
+# Copy supervisor & entrypoint
 COPY supervisord.conf /etc/supervisor/supervisord.conf
-RUN chmod +x /entrypoint.sh
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
 
 EXPOSE 80
-ENTRYPOINT ["/entrypoint.sh"]
-CMD ["apache2-foreground"]
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
