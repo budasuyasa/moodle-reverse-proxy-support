@@ -17,7 +17,7 @@
 ### 1. Clone Repository
 
 ```bash
-git clone https://github.com/budasuyasa/moodle-reveerse-proxy-support
+git clone https://github.com/budasuyasa/moodle-reverse-proxy-support
 cd moodle-reverse-proxy-support
 ```
 
