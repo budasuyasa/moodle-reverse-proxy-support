@@ -34,6 +34,18 @@ if [ ! -f /var/www/html/config.php ]; then
   echo "✅ Installation complete."
 fi
 
+# --- Tambahkan setting reverse proxy dan SSL proxy jika diperlukan ---
+if [ "${MOODLE_SSLPROXY}" = "true" ]; then
+  echo "💡 Enabling reverse proxy SSL support..."
+  grep -q "\$CFG->sslproxy" /var/www/html/config.php ||
+    sed -i "/require_once(__DIR__ . '\/lib\/setup.php');/i \$CFG->sslproxy = 1;" /var/www/html/config.php
+fi
+
+if [ "${MOODLE_REVERSEPROXY}" = "true" ]; then
+  grep -q "\$CFG->reverseproxy" /var/www/html/config.php ||
+    sed -i "/require_once(__DIR__ . '\/lib\/setup.php');/i \$CFG->reverseproxy = true;" /var/www/html/config.php
+fi
+
 # --- Pastikan file akhirnya dimiliki www-data ---
 chown -R www-data:www-data /var/www/html /var/www/moodledata
 

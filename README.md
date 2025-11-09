@@ -78,6 +78,44 @@ pastikan tidak ada error dari moodle CLI installer.
 docker logs moodle -f
 ```
 
+`entrypoint.sh` akan melakukan instalasi dengan memastikan database siap terlebih dahulu.
+Jangan panik jika log terlihat seperti ini:
+
+```bash
+⏳ Waiting for database mariadb:3306...
+DNS fwd/rev mismatch: mariadb != moodle-db.moodle-reverse-proxy_moodle_net
+mariadb [192.168.128.2] 3306 (mysql) : Connection refused
+   Database not ready, retrying...
+DNS fwd/rev mismatch: mariadb != moodle-db.moodle-reverse-proxy_moodle_net
+mariadb [192.168.128.2] 3306 (mysql) : Connection refused
+   Database not ready, retrying...
+DNS fwd/rev mismatch: mariadb != moodle-db.moodle-reverse-proxy_moodle_net
+mariadb [192.168.128.2] 3306 (mysql) open
+✅ Database is ready.
+
+```
+
+Log di atas normal. Tunggu beberapa sampai database siap:
+
+```
+✅ Database is ready.
+🚀 Installing Moodle...
+                                 .-..-.
+   _____                         | || |
+  /____/-.---_  .---.  .---.  .-.| || | .---.
+  | |  _   _  |/  _  \/  _  \/  _  || |/  __ \
+  * | | | | | || |_| || |_| || |_| || || |___/
+    |_| |_| |_|\_____/\_____/\_____||_|\_____)
+
+Program pemasangan baris perintah Moodle 5.1+ (Build: 20251107)
+-->Sistem
+++ install.xml: Berhasil (11,32 detik) ++
+++ xmldb_main_install: Berhasil (7,16 detik) ++
+++ external_update_descriptions: Berhasil (2,97 detik) ++
+```
+
+Ini artinya instalasi sedang berjalan dan tunggu hingga selesai.
+
 ### Deploy dengan Coolify
 
 Anda menggunakan coolify? tambahkan container labels berikut pada service `moodle` untuk reverse proxy dan auto https:
@@ -103,7 +141,9 @@ labels:
   traefik.http.services.moodle.loadbalancer.server.port: "80"
 ```
 
-Pastikan Anda juga menambahkan networks coolify:
+Jangan lupa sesuaikan `your-domain.com` dengan domain Anda.
+
+Pastikan Anda juga menambahkan networks `coolify`:
 
 ```yaml
 networks:
@@ -114,7 +154,32 @@ networks:
 
 ```
 
-Jangan lupa sesuaikan `your-domain.com` dengan domain Anda.
+Terakhir, set `MOODLE_REVERSEPROXY=false` karena sudah dihandle oleh traefik.
+
+## Deploy dengan Nginx
+
+```nginx
+
+server {
+    listen 80;
+    server_name yourdomain.com;
+
+    location / {
+        proxy_pass http://localhost:8989;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto https;
+        proxy_set_header X-Forwarded-Host $host;
+        client_max_body_size 128M;
+    }
+
+    access_log /var/log/nginx/moodle_access.log;
+    error_log /var/log/nginx/moodle_error.log;
+}
+```
+
+Terakhir gunaakan Letsencrypt untuk mendapatkan SSL certificate.
 
 ## 🤝 Contributing
 
