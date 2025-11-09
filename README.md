@@ -95,7 +95,7 @@ mariadb [192.168.128.2] 3306 (mysql) open
 
 ```
 
-Log di atas normal. Tunggu beberapa sampai database siap:
+Log di atas normal. Tunggu beberapa saat sampai database siap:
 
 ```
 ✅ Database is ready.

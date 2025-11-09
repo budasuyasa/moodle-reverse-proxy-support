@@ -11,6 +11,7 @@ services:
       - .env
     volumes:
       - moodle_data:/var/www/moodledata
+      - moodle_html:/var/www/html
     networks:
       - moodle_net
 
@@ -32,6 +33,7 @@ services:
       - moodle_net
 
 volumes:
+  moodle_html:
   moodle_data:
   mariadb_data:
 
