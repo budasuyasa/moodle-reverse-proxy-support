@@ -14,6 +14,76 @@
 
 ## 🚀 Quick Start
 
+Buat sebuah docker-compose.yml dengan isi sebagai berikut:
+
+```
+services:
+  moodle:
+    image: ghcr.io/budasuyasa/moodle-reverse-proxy:main
+    restart: always
+    ports:
+      - 8989:80
+    environment:
+      MOODLE_SITE_NAME="Moodle Learning Platform"
+      MOODLE_SITE_SHORTNAME=Moodle
+      MOODLE_HOST="http://localhost:8989"
+      MOODLE_LANG=id
+      MOODLE_REVERSEPROXY=false
+      MOODLE_SSLPROXY=false
+      MOODLE_USERNAME=admin
+      MOODLE_PASSWORD=SuperSecret123
+      MOODLE_EMAIL=admin@example.com
+      MOODLE_DATABASE_TYPE=mariadb
+      MOODLE_DATABASE_HOST=mariadb
+      MOODLE_DATABASE_PORT_NUMBER=3306
+      MOODLE_DATABASE_NAME=moodle
+      MOODLE_DATABASE_USER=moodle
+      MOODLE_DATABASE_PASSWORD=moodlepass
+    volumes:
+      - moodle_data:/var/www/moodledata
+      - moodle_html:/var/www/html
+    networks:
+      - moodle_net
+
+  mariadb:
+    image: mariadb:10.11
+    container_name: moodle-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: moodlepass
+      MYSQL_DATABASE: moodle
+      MYSQL_USER: moodle
+      MYSQL_PASSWORD: moodlepass
+    command: --max_allowed_packet=256M --innodb_buffer_pool_size=512M
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    networks:
+      - moodle_net
+
+volumes:
+  moodle_html:
+  moodle_data:
+  mariadb_data:
+
+networks:
+  moodle_net:
+    driver: bridge
+```
+
+Kemudian jalankan docker compose:
+
+```
+docker compose up -d
+```
+
+Tunggu hingga proses instalasi selesai. Cek proses installasi dengan memantau log container.
+
+```
+docker logs moodle -f
+```
+
+## 🏗️ Customize & Build Sendiri
+
 ### 1. Clone Repository
 
 ```bash
