@@ -2,9 +2,9 @@ FROM php:8.3-apache
 
 # Install dependencies
 RUN apt-get update && apt-get install -y \
-  git unzip cron curl ghostscript libfreetype6-dev libjpeg62-turbo-dev libpng-dev \
+  git unzip curl ghostscript libfreetype6-dev libjpeg62-turbo-dev libpng-dev \
   libxml2-dev libicu-dev libzip-dev libldap2-dev libxslt-dev netcat-traditional \
-  supervisor vim && \
+  supervisor && \
   rm -rf /var/lib/apt/lists/*
 
 # Enable Apache mods
